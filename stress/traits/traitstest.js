@@ -42,11 +42,9 @@ var LOCATION_PARAMS = LOCATIONS_ARRAY[Math.floor(Math.random() * LOCATIONS_ARRAY
 
 var LOCATION = { x: randFloat(LOCATION_PARAMS.min_x, LOCATION_PARAMS.max_x), y: LOCATION_PARAMS.y, z: randFloat(LOCATION_PARAMS.min_z, LOCATION_PARAMS.max_z) };
 
-Vec3.print("RANDOM LOCATION SELECTED:", LOCATION);
-
 var playFromCurrentLocation = true;
 var loop = true;
-var wearableAttached = false;
+var wearableRotation = 0;
 
 // Disable the privacy bubble
 Users.disableIgnoreRadius();
@@ -96,6 +94,8 @@ Recording.loadRecording(RECORDING_URL, function(success) {
     }
 });
 
+
+
 count = 300; // This is necessary to wait for the audio mixer to connect
 function update(event) {
     if (count > 0) {
@@ -131,15 +131,10 @@ function update(event) {
             +" JD: " + Avatar.getDataRate("jointDataOutbound").toFixed(2));
     }
 
-    var randomPercent = Math.random() * 100;
-    if (randomPercent < WEARABLE_CHANGE_PROB) {
-        if (wearableAttached) {
-            Avatar.setAvatarEntityData({});
-        } else {
-            Avatar.setAvatarEntityData({ entityId : entityJSON });
-        }
-        wearableAttached = !wearableAttached;
-    }
+    entityJSON["rotation"] = Quat.fromPitchYawRollDegrees(0, wearableRotation, 0);
+    Avatar.setAvatarEntityData({ entityId : entityJSON});
+    wearableRotation = (wearableRotation + 1);
+
     
     if (!Recording.isPlaying()) {
         Script.update.disconnect(update);
